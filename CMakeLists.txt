@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(llmchat
     src/main.cpp
+    src/http_client.cpp
+    src/chat.cpp
 )
 target_include_directories(llmchat PRIVATE include)
 
