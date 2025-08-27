@@ -1,0 +1,19 @@
+# build artifacts
+/build
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+
+# macOS
+.DS_Store
+
+# editors
+.vscode/
+.idea/
+
+# temporary files
+*.o
+*.obj
+*.exe
+*.out
