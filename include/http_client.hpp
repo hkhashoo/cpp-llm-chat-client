@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <functional>
 
 struct Message {
     std::string role;     // "user" or "assistant"
@@ -15,3 +16,10 @@ struct LlmResult {
 
 // Send chat history to Ollama and return the latest reply.
 LlmResult ollama_chat(const std::vector<Message>& history, int timeout_ms = 15000);
+
+// Returns the full concatenated reply when done (ok=false on error).
+LlmResult ollama_chat_stream(
+    const std::vector<Message>& history,
+    const std::function<void(const std::string&)>& on_chunk,
+    int timeout_ms = 15000
+);
