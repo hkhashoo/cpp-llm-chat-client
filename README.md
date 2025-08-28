@@ -52,3 +52,9 @@ I’m using conventional commit prefixes to keep the history clean:
 - [docs] for documentation  
 - [test] for tests  
 - [refactor] for non-functional code changes  
+
+### CLI overrides
+- `--stream | --no-stream`
+- `--model <name>`
+- `--history <N>`
+- `--timeout <ms>`

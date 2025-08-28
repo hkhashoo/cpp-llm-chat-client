@@ -9,6 +9,7 @@ add_executable(llmchat
     src/http_client.cpp
     src/chat.cpp
     src/util_env.cpp
+    src/util_log.cpp
 )
 target_include_directories(llmchat PRIVATE include)
 
@@ -36,4 +37,12 @@ FetchContent_Declare(
 set(CPR_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(cpr)
 
-target_link_libraries(llmchat PRIVATE cpr::cpr nlohmann_json::nlohmann_json)
+FetchContent_Declare(
+  spdlog
+  GIT_REPOSITORY https://github.com/gabime/spdlog.git
+  GIT_TAG v1.13.0
+)
+set(SPDLOG_FMT_EXTERNAL OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(spdlog)
+
+target_link_libraries(llmchat PRIVATE cpr::cpr nlohmann_json::nlohmann_json spdlog::spdlog)
