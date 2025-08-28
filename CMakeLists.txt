@@ -8,6 +8,7 @@ add_executable(llmchat
     src/main.cpp
     src/http_client.cpp
     src/chat.cpp
+    src/util_env.cpp
 )
 target_include_directories(llmchat PRIVATE include)
 
