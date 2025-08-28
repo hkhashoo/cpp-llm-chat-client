@@ -2,6 +2,7 @@
 #include <cpr/cpr.h>
 #include <nlohmann/json.hpp>
 #include <cstdlib>
+#include "util_log.hpp"
 
 using json = nlohmann::json;
 
@@ -30,6 +31,8 @@ LlmResult ollama_chat(const std::vector<Message>& history, int timeout_ms) {
         {"messages", msgs}
     };
 
+    log::get()->info("Sending request to Ollama (model={})", model);
+
     auto r = cpr::Post(
         cpr::Url{url},
         cpr::Header{{"Content-Type","application/json"}},
@@ -40,11 +43,13 @@ LlmResult ollama_chat(const std::vector<Message>& history, int timeout_ms) {
     if (r.error.code != cpr::ErrorCode::OK) {
         out.ok = false;
         out.error = "http error: " + r.error.message;
+        log::get()->error("HTTP error: {}", r.error.message);
         return out;
     }
     if (r.status_code < 200 || r.status_code >= 300) {
         out.ok = false;
         out.error = "status " + std::to_string(r.status_code) + ": " + r.text;
+        log::get()->error("HTTP error: {}", r.text);
         return out;
     }
 
@@ -62,6 +67,7 @@ LlmResult ollama_chat(const std::vector<Message>& history, int timeout_ms) {
     } catch (const std::exception& e) {
         out.ok = false;
         out.error = std::string("json parse: ") + e.what();
+        log::get()->error("Error parsing JSON response - ", std::string(e.what()));
         return out;
     }
 }
@@ -105,6 +111,8 @@ LlmResult ollama_chat_stream(
         {"messages", msgs}
     };
 
+    log::get()->info("Sending request to Ollama (model={})", model);
+
     std::string full;
     std::string carry;
     bool had_error = false;
@@ -146,16 +154,19 @@ LlmResult ollama_chat_stream(
     if (r.error.code != cpr::ErrorCode::OK) {
         out.ok = false;
         out.error = "http error: " + r.error.message;
+        log::get()->error("HTTP error: {}", r.error.message);
         return out;
     }
     if (r.status_code < 200 || r.status_code >= 300) {
         out.ok = false;
         out.error = "status " + std::to_string(r.status_code) + ": " + r.text;
+        log::get()->error("HTTP error: {}", r.text);
         return out;
     }
     if (had_error) {
         out.ok = false;
         out.error = err_msg.empty() ? "stream error" : err_msg;
+        log::get()->error("Stream Error: {}", err_msg);
         return out;
     }
     out.ok = true;

@@ -1,6 +1,7 @@
 #include "chat.hpp"
 #include <cstdlib>
 #include <iostream>
+#include "util_log.hpp"
 
 
 static int env_int_or(const char* k, int dflt) {
@@ -11,6 +12,8 @@ static int env_int_or(const char* k, int dflt) {
 }
 
 std::string Chat::reply(const std::string& user_input) {
+
+    log::get()->info("User: {}", user_input);
     // add user message
     history_.push_back({"user", user_input});
 
@@ -39,16 +42,20 @@ std::string Chat::reply(const std::string& user_input) {
         );
         std::cout << "\n";
         if (r.ok) {
+            log::get()->info("Assistant: {}...", printed.substr(0, 40));
             history_.push_back({"assistant", printed});
             return printed;
         }
+        log::get()->error("Assistant error: {}...", r.error);
         return std::string("[error] ") + r.error;
     } else {
         auto r = ollama_chat(history_, timeout_ms);
         if (r.ok) {
+            log::get()->info("Assistant: {}...", r.text.substr(0, 40));
             history_.push_back({"assistant", r.text});
             return r.text;
         }
+        log::get()->error("Assistant error: {}...", r.error);
         return std::string("[error] ") + r.error;
     }
 }
