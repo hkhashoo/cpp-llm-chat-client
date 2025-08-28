@@ -1,5 +1,7 @@
 #include "chat.hpp"
 #include <cstdlib>
+#include <iostream>
+
 
 static int env_int_or(const char* k, int dflt) {
     if (const char* v = std::getenv(k)) {
@@ -20,14 +22,33 @@ std::string Chat::reply(const std::string& user_input) {
     }
 
     // call LLM
-    const int timeout_ms = env_int_or("TIMEOUT_MS", 15000);
-    auto r = ollama_chat(history_, timeout_ms);
+        const int timeout_ms = env_int_or("TIMEOUT_MS", 15000);
+    const bool stream = []{
+        if (const char* v = std::getenv("STREAM")) {
+            return std::string(v) == "1" || std::string(v) == "true" || std::string(v) == "TRUE";
+        }
+        return false;
+    }();
 
-    if (r.ok) {
-        history_.push_back({"assistant", r.text});
-        return r.text;
+    if (stream) {
+        std::string printed = "";
+        auto r = ollama_chat_stream(
+            history_,
+            [&](const std::string& chunk){ std::cout << chunk << std::flush; printed += chunk; },
+            timeout_ms
+        );
+        std::cout << "\n";
+        if (r.ok) {
+            history_.push_back({"assistant", printed});
+            return printed;
+        }
+        return std::string("[error] ") + r.error;
     } else {
-        // do not add to history
+        auto r = ollama_chat(history_, timeout_ms);
+        if (r.ok) {
+            history_.push_back({"assistant", r.text});
+            return r.text;
+        }
         return std::string("[error] ") + r.error;
     }
 }
