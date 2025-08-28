@@ -2,6 +2,8 @@
 #include <iostream>
 #include <string>
 #include <cstdlib>
+#include "util_env.hpp"
+#include <cstdlib>
 
 static bool env_true(const char* k) {
     if (const char* v = std::getenv(k)) {
@@ -13,6 +15,7 @@ static bool env_true(const char* k) {
 }
 
 int main() {
+    load_env_file("../.env");
     std::cout << "LLM Chat (Ollama). Type 'exit' to quit.\n";
     const bool stream = env_true("STREAM");
 
