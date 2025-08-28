@@ -17,3 +17,6 @@ compile_commands.json
 *.obj
 *.exe
 *.out
+
+# Local environment config
+.env
